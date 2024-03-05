@@ -1,9 +1,10 @@
 #include "../include/EventLoop.h"
-
+#include "../include/Poller.h"
+#include "../include/Channel.h"
 __thread EventLoop *t_loopInthisThread = 0;
-
+const int kPollTimeMs = 10000;
 // one loop per thread 
-EventLoop::EventLoop() : looping_(false), threadId_(muduo::CurrentThread::tid())
+EventLoop::EventLoop() : looping_(false),quit_(false), threadId_(muduo::CurrentThread::tid()),poller_(new Poller(this))
 {
     std::cout << "EventLoop Created " << this << " in thread" << threadId_<<std::endl;
     if(t_loopInthisThread)
@@ -43,7 +44,18 @@ void EventLoop::loop()
     assert(!looping_);
     assertInLoopThread();
     looping_ = true;
-    poll(nullptr, 0, 5 * 1000);
+    quit_ = false;
+
+    while (!quit_)
+    {
+        activeChannels_.clear();
+        poller_->poll(kPollTimeMs, &activeChannels_);
+        for (std::vector<Channel *>::iterator iter = activeChannels_.begin(); iter != activeChannels_.end();iter++)
+        {
+            (*iter)->handleEvent();
+        }
+
+    }
 
     std::cout << "EventLoop " << this << " stop looping" << std::endl;
     looping_ = false;
@@ -58,5 +70,11 @@ void EventLoop::abortNotInLoopThread()
 
 void EventLoop::updateChannel(Channel * channel)
 {
-
+    assert(channel->ownerLoop() == this);
+    assertInLoopThread();
+    poller_->updateChannel(channel);
+}
+void EventLoop::quit()
+{
+    quit_ = true;;
 }

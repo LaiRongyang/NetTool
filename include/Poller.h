@@ -11,18 +11,18 @@ class Channel;
 class Poller : boost::noncopyable
 {
     public:
-        typedef std::vector<Channel *> ChannelList;
+        //typedef std::vector<Channel *> std::vector<Channel *>;
         Poller(EventLoop *loop);
         ~Poller();
 
-        muduo::Timestamp poll(int timeOutMs, ChannelList *activeChannels);
+        muduo::Timestamp poll(int timeOutMs, std::vector<Channel *> *activeChannels);
 
         void updateChannel(Channel *channel);
 
         void assertInLoopThread();
 
     private:
-        void fillActiveChannel(int numEvents, ChannelList *activeChannels) const;
+        void fillActiveChannel(int numEvents, std::vector<Channel *> *activeChannels) const;
 
         typedef std::vector<struct pollfd> PollFdList;
         typedef std::map<int, Channel *> ChannelMap;

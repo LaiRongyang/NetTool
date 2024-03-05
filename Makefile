@@ -6,6 +6,6 @@ LIB_SRC = ./lib/EventLoop.cpp  ./lib/Channel.cpp  ./lib/Poller.cpp
 
 
 test:$(LIB_SRC)
-	g++  ./src/main.cpp $(CXXFLAGS) -o $@  $(LIB_SRC)  $(BASE_SRC)  $(LDFLAGS)
+	g++  ./src/test/test1.cpp $(CXXFLAGS) -o $@  $(LIB_SRC)  $(BASE_SRC)  $(LDFLAGS)
 
 

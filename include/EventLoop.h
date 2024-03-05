@@ -5,6 +5,8 @@
 #include <iostream>
 #include <assert.h>
 #include <poll.h>
+#include <vector>
+#include <boost/scoped_ptr.hpp>
 #include "../common/thread/Thread.h"
 /*
 1. 什么都不做的EventLoop
@@ -19,6 +21,7 @@ EventLoop的构造函数会记住本对象所属的线程（threadId_）。
 EventLoop对象的生命期通常和其所属的线程一样长，它不必是heap对象。
 */
 class Channel;
+class Poller;
 class EventLoop : boost ::noncopyable
 {
 public:
@@ -35,12 +38,21 @@ public:
 
     void updateChannel(Channel * );
 
+    void quit();
+
 private:
     void abortNotInLoopThread();
 
     bool looping_;
     const pid_t threadId_;
-};
 
+    //typedef std::vector<Channel *> std::vector<Channel *>;
+
+    bool quit_;
+
+    boost::scoped_ptr<Poller> poller_;
+
+    std::vector<Channel *> activeChannels_;
+};
 
 #endif

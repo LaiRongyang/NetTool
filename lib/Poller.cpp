@@ -11,7 +11,7 @@ Poller::Poller(EventLoop * loop)
 Poller::~Poller()
 {
 }
-muduo::Timestamp Poller::poll(int timeOutMS, ChannelList *activeChannels)
+muduo::Timestamp Poller::poll(int timeOutMS, std::vector<Channel *> *activeChannels)
 {
     int numEvents = ::poll(&(*pollFds_.begin()), pollFds_.size(), timeOutMS);
     muduo::Timestamp now(muduo::Timestamp::now());
@@ -27,9 +27,9 @@ muduo::Timestamp Poller::poll(int timeOutMS, ChannelList *activeChannels)
     return now;
 }
 
-void Poller::fillActiveChannel(int numEvents, ChannelList *activeChannels) const
+void Poller::fillActiveChannel(int numEvents, std::vector<Channel *> *activeChannels) const
 {
-    for (PollFdList::const_iterator iterFd; iterFd != pollFds_.begin() && numEvents>0; iterFd++)
+    for (PollFdList::const_iterator iterFd=pollFds_.begin(); iterFd != pollFds_.end() && numEvents>0; iterFd++)
     {
         if(iterFd->revents>0)
         {
@@ -74,3 +74,4 @@ void Poller::updateChannel(Channel *channel)
         }
     }
 }
+
